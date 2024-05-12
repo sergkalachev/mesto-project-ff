@@ -1,14 +1,14 @@
-export function openPopup(e) {
-    e.classList.toggle("popup_is-opened");
-    document.addEventListener('keydown', handleEsc);
+export function openPopup(popupElement) {
+    popupElement.classList.toggle("popup_is-opened");
+    document.addEventListener('keydown', closePopupByEsc);
 }
 
-export function closePopup (e) {
-    e.classList.toggle("popup_is-opened");
-    document.removeEventListener('keydown', handleEsc);
+export function closePopup (popupElement) {
+    popupElement.classList.toggle("popup_is-opened");
+    document.removeEventListener('keydown', closePopupByEsc);
 }
 //Функция закрытия попапов по кнопке Esc
-export function handleEsc (e) {
+function closePopupByEsc (e) {
 if (e.keyCode === 27) {
     const activePopup = document.querySelector(".popup_is-opened");
     if(activePopup){
@@ -19,7 +19,7 @@ if (e.keyCode === 27) {
 
 //Функция закрытия попапов по клику на оверлей
 export function handleOverlayClick (e) {
-    {if (e.target.classList.value.includes('popup_is-opened')) {
+    {if (e.target.classList.contains('popup_is-opened')) {
         closePopup(e.target);
     }} 
 }

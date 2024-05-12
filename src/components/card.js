@@ -1,18 +1,18 @@
 // Функция создания карточки
-function getTmplt(){
-    return document.querySelector('#card-template').content
+function getTemplate(){
+    const cardElement = document.querySelector('#card-template').content.querySelector('.places__item').cloneNode(true);
+    return cardElement;
 }
-export function createNewCard(elem, callback, openCardImagePopup, onLike) {
-    const cardTemplate = getTmplt()
-    const cardElement = cardTemplate.querySelector('.places__item').cloneNode(true);
-
-    // наполняем карточку содержимым
-    cardElement.querySelector('.card__image').src = elem.link;
-    cardElement.querySelector('.card__image').alt = elem.name
-    cardElement.querySelector('.card__title').textContent = elem.name;
-    cardElement.querySelector('.card__delete-button').addEventListener('click', callback);
+export function createNewCard(cardItem, deleteCard, openCardImagePopup, onLike) {
+    const cardElement = getTemplate();
+    const cardImage = cardElement.querySelector('.card__image');
+    cardImage.src = cardItem.link;
+    cardImage.alt = cardItem.name
+    cardElement.querySelector('.card__title').textContent = cardItem.name;
+    cardElement.querySelector('.card__delete-button').addEventListener('click', deleteCard);
     cardElement.querySelector('.card__like-button').addEventListener('click', onLike);
-    cardElement.querySelector('.card__image').addEventListener("click", (event) => openCardImagePopup(event));
+    cardImage.addEventListener("click", openCardImagePopup);
+    
     return cardElement
 }
 
