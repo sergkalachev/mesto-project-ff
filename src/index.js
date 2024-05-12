@@ -36,10 +36,8 @@ const openImage = (e)=>{
  
 // Ввести карточки на страницу
 function showCards(){
-    const cardArray = []
     initialCards.forEach(e=>{
         const newCard = createNewCard(e, delCallback, openImage, clickOnLike)
-        cardArray.push(newCard);
         cardArea.append(newCard);
     })
 }
