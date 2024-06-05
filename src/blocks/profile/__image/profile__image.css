@@ -9,6 +9,26 @@
   margin: 0 29px 0 0;
 }
 
+.profile__image:hover .logo-edit__button {
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  border: none;
+  outline: none;
+  cursor: pointer;
+}
+
+.logo-edit__button {
+  display: none;
+  width: 100%;
+  height: 100%;
+}
+
+.logo-image-edit {
+  margin: auto;
+  width: 26px;
+  height: 26px;
+}
+
 @media screen and (max-width: 740px) {
   .profile__image {
     margin: 0 10px 0 0;

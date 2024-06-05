@@ -1,87 +1,189 @@
-import {initialCards} from "./components/cards";
-import './pages/index.css';
+import "./pages/index.css";
 
-import {createNewCard, delCallback, clickOnLike} from "./components/card";
-import {openPopup, closePopup, handleOverlayClick} from "./components/modal";
+import { createNewCard, delCallback, clickOnLike } from "./components/card";
+import { openPopup, closePopup, handleOverlayClick } from "./components/modal";
+import { clearValidation, enableValidation } from "./components/validation";
+import {
+  getUserInfo,
+  editProfile,
+  getCards,
+  addNewCard,
+  changeLogoOnServer,
+} from "./components/api";
 
-const editProfileButton = document.querySelector('.profile__edit-button');
+const editProfileButton = document.querySelector(".profile__edit-button");
 const editProfilePopup = document.querySelector(".popup_type_edit");
-const profileName = document.querySelector('.profile__title');
-const profileDescription = document.querySelector('.profile__description');
+const profileName = document.querySelector(".profile__title");
+const profileDescription = document.querySelector(".profile__description");
+export const profileAvatar = document.querySelector(".profile__image");
+export const logoUpdateForm = document.forms["update-avatar"];
+export const avatarPopup = document.querySelector(".popup_type_update_avatar");
+export const profileLogoEditButton = document.querySelector(".logo-edit__button");
 
-const formEditProfile = document.forms['edit-profile'];
+const formEditProfile = document.forms["edit-profile"];
 const nameInput = formEditProfile.elements.name;
 const jobInput = formEditProfile.elements.description;
 
 const newCardPopup = document.querySelector(".popup_type_new-card");
-const addCardButton = document.querySelector('.profile__add-button');
-const cardArea = document.querySelector('.places__list');
-const formAddCard = document.forms['new-place'];
-const formImageName = formAddCard.elements['place-name'];
-const formImageLink = formAddCard.elements['link'];
+const addCardButton = document.querySelector(".profile__add-button");
+const cardArea = document.querySelector(".places__list");
+const formAddCard = document.forms["new-place"];
+const formImageName = formAddCard.elements["place-name"];
+const formImageLink = formAddCard.elements["link"];
 
 const cardImagePopup = document.querySelector(".popup_type_image");
-const popupImage = cardImagePopup.querySelector('.popup__image');
-const popupCaption = cardImagePopup.querySelector('.popup__caption');
+const popupImage = cardImagePopup.querySelector(".popup__image");
+const popupCaption = cardImagePopup.querySelector(".popup__caption");
 
-const popupArray = [cardImagePopup, editProfilePopup, newCardPopup];
+const popupArray = [
+  cardImagePopup,
+  editProfilePopup,
+  newCardPopup,
+  avatarPopup,
+];
+
+const validationConfig = {
+  formSelector: ".popup__form",
+  inputSelector: ".popup__input",
+  submitButtonSelector: ".popup__button",
+  inactiveButtonClass: "form__submit_inactive",
+  inputErrorClass: "form__input_type_error",
+  errorClass: "form__input-error_active",
+};
+
+export const initialData = {
+  userInfoData: {},
+  cardsData: [],
+};
 
 // Функция открытия картинки
-const openImage = (e)=>{
-    openPopup(cardImagePopup);
-    popupImage.src = e.target.src;
-    popupImage.alt = e.target.alt;
-    popupCaption.textContent = e.target.alt;
-}
- 
-// Ввести карточки на страницу
-function showCards(){
-    initialCards.forEach(e=>{
-        const newCard = createNewCard(e, delCallback, openImage, clickOnLike)
-        cardArea.append(newCard);
-    })
-}
-showCards()
+const openImage = (e) => {
+  openPopup(cardImagePopup);
+  popupImage.src = e.target.src;
+  popupImage.alt = e.target.alt;
+  popupCaption.textContent = e.target.alt;
+};
 
 //Открытие формы редактирования профиля
 const openProfileEditForm = () => {
-    nameInput.value = profileName.textContent;
-    jobInput.value = profileDescription.textContent;
-    openPopup(editProfilePopup);
-}
+  nameInput.value = profileName.textContent;
+  jobInput.value = profileDescription.textContent;
+  clearValidation(formEditProfile, validationConfig);
+  openPopup(editProfilePopup);
+};
 editProfileButton.addEventListener("click", openProfileEditForm);
 
+//Проверка на валидность
+enableValidation(validationConfig);
+
 //Добавление картинки
-addCardButton.addEventListener("click", ()=> {
-    openPopup(newCardPopup)
+addCardButton.addEventListener("click", () => {
+  clearValidation(formAddCard, validationConfig);
+  openPopup(newCardPopup);
+  formAddCard.reset();
 });
 
 //Функция закрытия попапов
-popupArray.forEach(arrayPopupElement => {
-    const closeButton = arrayPopupElement.querySelector('.popup__close');
-    closeButton.addEventListener('click', () => closePopup(arrayPopupElement))
-})
+popupArray.forEach((arrayPopupElement) => {
+  const closeButton = arrayPopupElement.querySelector(".popup__close");
+  closeButton.addEventListener("click", () => closePopup(arrayPopupElement));
+});
 
-document.addEventListener ('click', handleOverlayClick);
+document.addEventListener("click", handleOverlayClick);
 
 //Функция редактирования профиля
 function handleFormSubmit(evt) {
-    evt.preventDefault();
-
-    profileName.textContent = nameInput.value;
-    profileDescription.textContent = jobInput.value;
-    closePopup(editProfilePopup);
+  evt.submitter.textContent = "Сохранение...";
+  evt.preventDefault();
+  profileName.textContent = nameInput.value;
+  profileDescription.textContent = jobInput.value;
+  editProfile(evt, nameInput, jobInput);
+  closePopup(editProfilePopup);
 }
 
-formEditProfile.addEventListener('submit', handleFormSubmit);
+formEditProfile.addEventListener("submit", handleFormSubmit);
 
 //функция добавления новой карточки
 const addNewCardBySubmit = (e) => {
-    e.preventDefault();
-    const card = {name: formImageName.value, link: formImageLink.value};
-    cardArea.prepend(createNewCard(card, delCallback, openImage, clickOnLike));
-    formAddCard.reset();
-    closePopup(newCardPopup)
+  e.submitter.textContent = "Сохранение...";
+  e.preventDefault();
+  const card = {
+    name: formImageName.value,
+    link: formImageLink.value,
+    likes: [],
+    owner: initialData.userInfoData._id,
+  };
+  cardArea.prepend(createNewCard(card, delCallback, openImage, clickOnLike));
+  formAddCard.reset();
+  addNewCard(e, card);
+  closePopup(newCardPopup);
+};
+
+formAddCard.addEventListener("submit", addNewCardBySubmit);
+
+export { validationConfig };
+
+//функции получения и отображения первоначальной информации с сервера
+function showCards(cards) {
+  cards.forEach((e) => {
+    const newCard = createNewCard(e, delCallback, openImage, clickOnLike);
+    cardArea.append(newCard);
+  });
 }
 
-formAddCard.addEventListener('submit', addNewCardBySubmit);
+function showUserInfo(userInfo) {
+  profileName.textContent = userInfo.name;
+  profileDescription.textContent = userInfo.about;
+  profileAvatar.setAttribute(
+    "style",
+    `background-image: url(${userInfo.avatar}`
+  );
+  profileAvatar.alt = userInfo.name;
+}
+
+function showInitialPage() {
+  Promise.all([getUserInfo(), getCards()])
+    .then(([userInfo, cards]) => {
+      initialData.userInfoData = userInfo;
+      initialData.cardsData = cards;
+      showCards(cards);
+      showUserInfo(userInfo);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+}
+showInitialPage();
+
+const changeProfileImage = (e, link) => {
+  e.submitter.textContent = "Сохранение...";
+  changeLogoOnServer(link)
+    .then((res) => {
+      profileAvatar.setAttribute(
+        "style",
+        `background-image: url(${res.avatar}`
+      );
+      closePopup(avatarPopup);
+      logoUpdateForm.reset();
+    })
+    .catch((err) => {
+      console.log(err);
+    })
+    .finally(() => {
+      e.submitter.textContent = "Сохранить";
+    });
+  }
+
+//Обработка клика на кнопку редактирования аватара
+const handleEditLogoFormSubmit = (e) => {
+  e.preventDefault();
+  changeProfileImage(e, logoUpdateForm.elements.link.value);
+};
+
+profileLogoEditButton.addEventListener("click", () => {
+  clearValidation(logoUpdateForm, validationConfig);
+  openPopup(avatarPopup);
+});
+
+logoUpdateForm.addEventListener("submit", handleEditLogoFormSubmit);
+

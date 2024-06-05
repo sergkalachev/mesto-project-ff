@@ -20,3 +20,25 @@
     line-height: 15px;
   }
 }
+
+.form__input_type_error {
+  border-bottom-color: red;
+}
+
+.form__input-error_active {
+  color: red;
+  font-size: 14px;
+}
+
+.popup__button:disabled {
+  color: grey;
+  background: white;
+  border: 1px solid grey;
+}
+
+.popup__button:hover:disabled {
+  cursor: default;
+  color: grey;
+  background: white;
+  border: 1px solid grey;
+}
