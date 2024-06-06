@@ -6,20 +6,19 @@ const config = {
   },
 };
 
+const checkResponse = (res) => {
+  if (res.ok) {
+    return res.json();
+  }
+  return Promise.reject(`Ошибка: ${res.status}`);
+};
+
 //Функция получения данных о пользователе
 export const getUserInfo = () => {
   return fetch(`${config.baseUrl}/users/me`, {
     headers: config.headers,
   })
-    .then((res) => {
-      if (res.ok) {
-        return res.json();
-      }
-      return Promise.reject(`Ошибка: ${res.status}`);
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+  .then(checkResponse);
 };
 
 //Функция получения карточек
@@ -27,15 +26,7 @@ export const getCards = () => {
   return fetch(`${config.baseUrl}/cards`, {
     headers: config.headers,
   })
-  .then((res) => {
-    if (res.ok) {
-      return res.json();
-    }
-    return Promise.reject(`Ошибка: ${res.status}`);
-  })
-  .catch((err) => {
-    console.log(err);
-  });
+  .then(checkResponse);
 };
 
 //Функция редактирования профиля
@@ -48,18 +39,10 @@ export const editProfile = (evt, nameInput, jobInput) => {
       about: jobInput.value,
     }),
   })
-    .then((res) => {
-      if (res.ok) {
-        return res.json();
-      }
-      return Promise.reject(`Ошибка: ${res.status}`);
-    })
-    .catch((err) => {
-      console.log(err);
-    })
-    .finally(() => {
-      evt.submitter.textContent = "Сохранить";
-    });
+  .then(checkResponse)
+  .finally(() => {
+    evt.submitter.textContent = "Сохранить";
+  });
 };
 
 //Добавление новой карточки на сервер
@@ -69,15 +52,7 @@ export const addNewCard = (e, card) => {
     headers: config.headers,
     body: JSON.stringify(card),
   })
-    .then((res) => {
-      if (res.ok) {
-        return res.json();
-      }
-      return Promise.reject(`Ошибка: ${res.status}`);
-    })
-    .catch((err) => {
-      console.log(err);
-    })
+    .then(checkResponse)
     .finally(() => {
       e.submitter.textContent = "Создать";
     });
@@ -85,7 +60,6 @@ export const addNewCard = (e, card) => {
 
 //Функция отправки ссылки на аватар на сервер
 export const changeLogoOnServer = (link) => {
-  console.log(link);
   return fetch(`${config.baseUrl}/users/me/avatar`, {
     method: "PATCH",
     headers: config.headers,
@@ -93,13 +67,32 @@ export const changeLogoOnServer = (link) => {
       avatar: link,
     }),
   })
-  .then((res) => {
-    if (res.ok) {
-      return res.json();
-    }
-    return Promise.reject(`Ошибка: ${res.status}`);
-  })
-  .catch((err) => {
-    console.log(err);
-  })
+  .then(checkResponse)
 };
+
+//Функция удаления карточки
+export const delCard = (cardId) => {
+return fetch(`${config.baseUrl}/cards/${cardId}`, {
+      method: 'DELETE',
+      headers: config.headers
+    })
+    .then(checkResponse)
+};
+
+//Выставили лайк
+export const likeSelected = (cardId) => {
+  return fetch(`${config.baseUrl}/cards/likes/${cardId}`, {
+    method: "PUT",
+    headers: config.headers
+  })
+    .then(checkResponse)
+}
+
+//Сняли лайк
+export const likeUnSelected = (cardId) => {
+  return fetch(`${config.baseUrl}/cards/likes/${cardId}`, {
+    method: "DELETE",
+    headers: config.headers
+  })
+    .then(checkResponse)
+}

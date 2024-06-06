@@ -15,10 +15,10 @@ const editProfileButton = document.querySelector(".profile__edit-button");
 const editProfilePopup = document.querySelector(".popup_type_edit");
 const profileName = document.querySelector(".profile__title");
 const profileDescription = document.querySelector(".profile__description");
-export const profileAvatar = document.querySelector(".profile__image");
-export const logoUpdateForm = document.forms["update-avatar"];
-export const avatarPopup = document.querySelector(".popup_type_update_avatar");
-export const profileLogoEditButton = document.querySelector(".logo-edit__button");
+const profileAvatar = document.querySelector(".profile__image");
+const logoUpdateForm = document.forms["update-avatar"];
+const avatarPopup = document.querySelector(".popup_type_update_avatar");
+const profileLogoEditButton = document.querySelector(".logo-edit__button");
 
 const formEditProfile = document.forms["edit-profile"];
 const nameInput = formEditProfile.elements.name;
@@ -51,7 +51,7 @@ const validationConfig = {
   errorClass: "form__input-error_active",
 };
 
-export const initialData = {
+const initialData = {
   userInfoData: {},
   cardsData: [],
 };
@@ -92,13 +92,26 @@ popupArray.forEach((arrayPopupElement) => {
 document.addEventListener("click", handleOverlayClick);
 
 //Функция редактирования профиля
+const updateProfile = (e, nameInput, jobInput) => {
+  e.submitter.textContent = "Сохранение...";
+  
+  editProfile(e, nameInput, jobInput)
+  .then((res) => {
+    profileName.textContent = res.name;
+    profileDescription.textContent = res.about;
+    closePopup(editProfilePopup);
+  })
+  .catch((err) => {
+    console.log(err)
+  })
+  .finally(() => {
+    e.submitter.textContent = "Сохранить";
+  })
+}
+
 function handleFormSubmit(evt) {
-  evt.submitter.textContent = "Сохранение...";
   evt.preventDefault();
-  profileName.textContent = nameInput.value;
-  profileDescription.textContent = jobInput.value;
-  editProfile(evt, nameInput, jobInput);
-  closePopup(editProfilePopup);
+  updateProfile(evt, nameInput, jobInput);
 }
 
 formEditProfile.addEventListener("submit", handleFormSubmit);
@@ -111,22 +124,30 @@ const addNewCardBySubmit = (e) => {
     name: formImageName.value,
     link: formImageLink.value,
     likes: [],
-    owner: initialData.userInfoData._id,
+    owner: {
+      _id: initialData.userInfoData._id,}
   };
-  cardArea.prepend(createNewCard(card, delCallback, openImage, clickOnLike));
-  formAddCard.reset();
-  addNewCard(e, card);
-  closePopup(newCardPopup);
+
+  addNewCard(e, card)
+  .then((res) => {
+    const newCard = createNewCard(res, delCallback, openImage, clickOnLike, initialData);
+    cardArea.prepend(newCard);
+    closePopup(newCardPopup);
+  })
+  .catch((err) => {
+    console.log(err)
+  })
+  .finally(() => {
+    e.submitter.textContent = "Создать";
+  })
 };
 
 formAddCard.addEventListener("submit", addNewCardBySubmit);
 
-export { validationConfig };
-
 //функции получения и отображения первоначальной информации с сервера
 function showCards(cards) {
   cards.forEach((e) => {
-    const newCard = createNewCard(e, delCallback, openImage, clickOnLike);
+    const newCard = createNewCard(e, delCallback, openImage, clickOnLike, initialData);
     cardArea.append(newCard);
   });
 }
@@ -186,4 +207,3 @@ profileLogoEditButton.addEventListener("click", () => {
 });
 
 logoUpdateForm.addEventListener("submit", handleEditLogoFormSubmit);
-
