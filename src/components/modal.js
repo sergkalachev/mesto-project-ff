@@ -1,3 +1,4 @@
+const escapeKeyCode = 27;
 export function openPopup(popupElement) {
     popupElement.classList.toggle("popup_is-opened");
     document.addEventListener('keydown', closePopupByEsc);
@@ -9,7 +10,7 @@ export function closePopup (popupElement) {
 }
 //Функция закрытия попапов по кнопке Esc
 function closePopupByEsc (e) {
-if (e.keyCode === 27) {
+if (e.keyCode === escapeKeyCode) {
     const activePopup = document.querySelector(".popup_is-opened");
     if(activePopup){
         closePopup(activePopup);

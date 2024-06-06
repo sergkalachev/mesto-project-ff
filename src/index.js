@@ -132,13 +132,14 @@ const addNewCardBySubmit = (e) => {
   .then((res) => {
     const newCard = createNewCard(res, delCallback, openImage, clickOnLike, initialData);
     cardArea.prepend(newCard);
+    formAddCard.reset();
     closePopup(newCardPopup);
   })
   .catch((err) => {
     console.log(err)
   })
   .finally(() => {
-    e.submitter.textContent = "Создать";
+    e.submitter.textContent = "Cохранить";
   })
 };
 

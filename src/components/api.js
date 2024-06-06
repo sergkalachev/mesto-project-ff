@@ -40,9 +40,6 @@ export const editProfile = (evt, nameInput, jobInput) => {
     }),
   })
   .then(checkResponse)
-  .finally(() => {
-    evt.submitter.textContent = "Сохранить";
-  });
 };
 
 //Добавление новой карточки на сервер
@@ -53,9 +50,7 @@ export const addNewCard = (e, card) => {
     body: JSON.stringify(card),
   })
     .then(checkResponse)
-    .finally(() => {
-      e.submitter.textContent = "Создать";
-    });
+
 };
 
 //Функция отправки ссылки на аватар на сервер
